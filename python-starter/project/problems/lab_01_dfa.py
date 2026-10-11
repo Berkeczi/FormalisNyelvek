@@ -24,6 +24,7 @@ class SumProblem(Problem):
         output_file = args.output
 
         input_file = open(input_file, 'r')
+        output_file = open(output_file, 'w')
 
         allapotok = input_file.readline().split()
         abece = input_file.readline().split()
@@ -43,7 +44,6 @@ class SumProblem(Problem):
                     aktualis = None
                     break
                 aktualis = atmenetek[aktualis][betu]
-            output_file = open(output_file, 'w')
             if aktualis in vegallapotok:
                 output_file.write("IGEN\n")
             else:
