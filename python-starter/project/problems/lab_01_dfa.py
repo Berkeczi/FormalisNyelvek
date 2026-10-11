@@ -37,7 +37,7 @@ class SumProblem(Problem):
             atmenetek[indul][betu] = eljut
 
         with open(output_file, 'w') as output_file:
-            for szo in args.check:
+            for szo in args.check[0].split(','):
                 aktualis = kezdo
                 for betu in szo:
                     if aktualis not in atmenetek or betu not in atmenetek[aktualis]:
