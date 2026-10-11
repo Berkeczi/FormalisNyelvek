@@ -24,7 +24,6 @@ class SumProblem(Problem):
         output_file = args.output
 
         input_file = open(input_file, 'r')
-        output_file = open(output_file, 'w')
 
         allapotok = input_file.readline().split()
         abece = input_file.readline().split()
@@ -37,14 +36,15 @@ class SumProblem(Problem):
             atmenetek[indul] = atmenetek.get(indul, {})
             atmenetek[indul][betu] = eljut
 
-        for szo in args.check:
-            aktualis = kezdo
-            for betu in szo:
-                if aktualis not in atmenetek or betu not in atmenetek[aktualis]:
-                    aktualis = None
-                    break
-                aktualis = atmenetek[aktualis][betu]
-            if aktualis in vegallapotok:
-                output_file.write("IGEN\n")
-            else:
-                output_file.write("NEM\n")
+        with open(output_file, 'w') as output_file:
+            for szo in args.check:
+                aktualis = kezdo
+                for betu in szo:
+                    if aktualis not in atmenetek or betu not in atmenetek[aktualis]:
+                        aktualis = None
+                        break
+                    aktualis = atmenetek[aktualis][betu]
+                if aktualis in vegallapotok:
+                    output_file.write("IGEN\n")
+                else:
+                    output_file.write("NEM\n")
