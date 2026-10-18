@@ -1,13 +1,15 @@
-from project.problem import Problem
 import argparse
 
-class SumProblem(Problem):
+from project.problem import Problem
+from project.problems.dfa import DFA
+
+class DFAProblem(Problem):
 
     def initialize_parser(self, parser: argparse.ArgumentParser):
         """
         Initialize the parser with the necessary arguments
         """
-        parser.add_argument('--check', nargs='+')
+        parser.add_argument('--check')
     
     def is_chosen_problem(self, args):
         """
@@ -19,32 +21,12 @@ class SumProblem(Problem):
         """
         Run the program
         """
-        # Access the input and output file paths
-        input_file = args.input
-        output_file = args.output
+        with open(args.input, 'r') as input_file:
+            dfa = DFA.from_file(input_file)
 
-        input_file = open(input_file, 'r')
-
-        allapotok = input_file.readline().split()
-        abece = input_file.readline().split()
-        kezdo = input_file.readline().strip()
-        vegallapotok = input_file.readline().split()
-        atmenetek = {}
-
-        for line in input_file:
-            indul, betu, eljut = line.split()
-            atmenetek[indul] = atmenetek.get(indul, {})
-            atmenetek[indul][betu] = eljut
-
-        with open(output_file, 'w') as output_file:
-            for szo in args.check[0].split(','):
-                aktualis = kezdo
-                for betu in szo:
-                    if aktualis not in atmenetek or betu not in atmenetek[aktualis]:
-                        aktualis = None
-                        break
-                    aktualis = atmenetek[aktualis][betu]
-                if aktualis in vegallapotok:
+        with open(args.output, 'w') as output_file:
+            for szo in args.check.split(','):
+                if dfa.accepts(szo):
                     output_file.write("IGEN\n")
                 else:
                     output_file.write("NEM\n")
