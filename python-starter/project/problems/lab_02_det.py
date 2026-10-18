@@ -10,7 +10,7 @@ class DetProblem(Problem):
         """
         Initialize the parser with the necessary arguments
         """
-        parser.add_argument('--det')
+        parser.add_argument('--det', action='store_true')
     
     def is_chosen_problem(self, args):
         """
