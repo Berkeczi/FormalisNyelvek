@@ -155,7 +155,7 @@ class FiniteAutomaton(Generic[TValue], ABC):
     def __str__(self) -> str:
         lines = [
             " ".join(sorted(self.states)),
-            " ".join(self.alphabet),
+            " ".join(sorted(self.alphabet)),
             self.initial_state,
             " ".join(sorted(self.accepting_states)),
         ]
