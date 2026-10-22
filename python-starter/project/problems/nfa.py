@@ -1,7 +1,7 @@
 from collections import deque
 
 from project.problems.dfa import DFA
-from project.problems.finite_automaton import FiniteAutomaton, _Transitions
+from project.problems.finite_automaton import FiniteAutomaton
 
 
 class NFA(FiniteAutomaton):
@@ -26,7 +26,7 @@ class NFA(FiniteAutomaton):
         subset_names = {initial_subset: "s0"}
         states = {"s0"}
         accepting_states = set()
-        transitions = _Transitions()
+        transitions = self._new_transitions()
         pending_states = deque([initial_subset])
 
         while pending_states:
@@ -37,14 +37,17 @@ class NFA(FiniteAutomaton):
                 accepting_states.add(current_state)
 
             for symbol in self.alphabet:
-                next_subset = frozenset(self.delta(current_subset, symbol))
+                next_subset = frozenset(
+                    self.delta(current_subset, symbol)
+                )
 
                 if not next_subset:
                     continue
 
                 if next_subset not in subset_names:
-                    subset_names[next_subset] = f"s{len(subset_names)}"
-                    states.add(subset_names[next_subset])
+                    next_state = f"s{len(subset_names)}"
+                    subset_names[next_subset] = next_state
+                    states.add(next_state)
                     pending_states.append(next_subset)
 
                 transitions[current_state][symbol] = subset_names[next_subset]

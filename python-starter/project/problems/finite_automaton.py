@@ -42,6 +42,10 @@ class FiniteAutomaton(ABC):
 
     @classmethod
     def from_file(cls, input_file):
+        return cls(*cls._read_definition(input_file))
+
+    @staticmethod
+    def _read_definition(input_file):
         lines = input_file.readlines()
         states = lines[0].split()
         alphabet = lines[1].split()
@@ -53,13 +57,17 @@ class FiniteAutomaton(ABC):
             source, symbol, destination = line.split()
             transitions[source][symbol] = destination
 
-        return cls(
+        return (
             states,
             alphabet,
             initial_state,
             accepting_states,
             transitions,
         )
+
+    @staticmethod
+    def _new_transitions():
+        return _Transitions()
 
     def __str__(self):
         lines = [
