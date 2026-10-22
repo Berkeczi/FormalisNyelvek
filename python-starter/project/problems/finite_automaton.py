@@ -52,7 +52,7 @@ class FiniteAutomaton(Generic[TValue], ABC):
         transitions: Transitions[TValue],
     ) -> None:
         self._states = frozenset(states)
-        self._alphabet = frozenset(alphabet)
+        self._alphabet = tuple(dict.fromkeys(alphabet))
         self._initial_state = initial_state
         self._accepting_states = frozenset(accepting_states)
         transitions.freeze()
@@ -64,7 +64,7 @@ class FiniteAutomaton(Generic[TValue], ABC):
         return self._states
 
     @property
-    def alphabet(self) -> frozenset[Symbol]:
+    def alphabet(self) -> tuple[Symbol, ...]:
         return self._alphabet
 
     @property
@@ -155,7 +155,7 @@ class FiniteAutomaton(Generic[TValue], ABC):
     def __str__(self) -> str:
         lines = [
             " ".join(sorted(self.states)),
-            " ".join(sorted(self.alphabet)),
+            " ".join(self.alphabet),
             self.initial_state,
             " ".join(sorted(self.accepting_states)),
         ]
