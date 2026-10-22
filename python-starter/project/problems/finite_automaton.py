@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Iterator
-from typing import Generic, TextIO, TypeAlias, TypeVar
+from typing import Generic, Self, TextIO, TypeAlias, TypeVar
 
 
 State: TypeAlias = str
@@ -15,7 +15,7 @@ class StateTransitions(Generic[TValue], ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def __setitem__(self, symbol: Symbol, destination: TValue) -> None:
+    def __setitem__(self, symbol: Symbol, destination: State) -> None:
         raise NotImplementedError
 
 
@@ -111,11 +111,20 @@ class FiniteAutomaton(Generic[TValue], ABC):
                 )
 
     @classmethod
-    def from_file(cls, input_file: TextIO):
+    def from_file(cls, input_file: TextIO) -> Self:
         return cls(*cls._read_definition(input_file))
 
     @classmethod
-    def _read_definition(cls, input_file: TextIO):
+    def _read_definition(
+        cls,
+        input_file: TextIO,
+    ) -> tuple[
+        list[State],
+        list[Symbol],
+        State,
+        list[State],
+        Transitions[TValue],
+    ]:
         lines = input_file.readlines()
         states = lines[0].split()
         alphabet = lines[1].split()

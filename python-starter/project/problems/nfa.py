@@ -1,4 +1,5 @@
 from collections import deque
+from collections.abc import Mapping, Set
 from types import MappingProxyType
 
 from project.problems.dfa import DFA
@@ -10,56 +11,75 @@ from project.problems.finite_automaton import (
     Transitions,
 )
 
-class _NFAStateTransitions(StateTransitions[set[State]]):
+class _NFAStateTransitions(
+    StateTransitions[Set[State]]
+):
     def __init__(
         self,
         transitions: dict[tuple[State, Symbol], set[State]]
-        | MappingProxyType,
+        | Mapping[tuple[State, Symbol], Set[State]],
         state: State,
+        mutable_transitions: dict[tuple[State, Symbol], set[State]] | None,
     ) -> None:
         self._transitions = transitions
         self._state = state
+        self._mutable_transitions = mutable_transitions
 
     def __setitem__(self, symbol: Symbol, destination: State) -> None:
-        if not isinstance(self._transitions, dict):
+        if self._mutable_transitions is None:
             raise TypeError("Transitions are immutable")
-        destinations = self._transitions.setdefault(
+        destinations = self._mutable_transitions.setdefault(
             (self._state, symbol),
             set(),
         )
         destinations.add(destination)
 
-    def __getitem__(self, symbol: Symbol) -> set[State] | frozenset[State]:
+    def __getitem__(self, symbol: Symbol) -> Set[State]:
         return self._transitions.get((self._state, symbol), set())
 
 
-class _NFATransitions(Transitions[set[State]]):
+class _NFATransitions(
+    Transitions[Set[State]]
+):
     def __init__(self) -> None:
-        self._values: dict[tuple[State, Symbol], set[State]] | MappingProxyType = {}
+        values: dict[tuple[State, Symbol], set[State]] = {}
+        self._values: Mapping[
+            tuple[State, Symbol],
+            Set[State],
+        ] = values
+        self._mutable_values: dict[
+            tuple[State, Symbol],
+            set[State],
+        ] | None = values
 
     def __getitem__(
         self,
         state: State,
-    ) -> StateTransitions[set[State]]:
-        return _NFAStateTransitions(self._values, state)
+    ) -> StateTransitions[Set[State]]:
+        return _NFAStateTransitions(
+            self._values,
+            state,
+            self._mutable_values,
+        )
 
     def items(self):
         return self._values.items()
 
-    def destinations(self, value: set[State]) -> frozenset[State]:
-        return frozenset(value)
+    def destinations(self, value: Set[State]) -> Set[State]:
+        return value
 
     def freeze(self) -> None:
-        if isinstance(self._values, dict):
+        if self._mutable_values is not None:
             self._values = MappingProxyType(
                 {
                     key: frozenset(destinations)
-                    for key, destinations in self._values.items()
+                    for key, destinations in self._mutable_values.items()
                 }
             )
+            self._mutable_values = None
 
 
-class NFA(FiniteAutomaton[set[State]]):
+class NFA(FiniteAutomaton[Set[State]]):
     @classmethod
     def _new_transitions(cls) -> _NFATransitions:
         return _NFATransitions()

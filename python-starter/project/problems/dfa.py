@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from types import MappingProxyType
 
 from project.problems.finite_automaton import (
@@ -8,40 +9,52 @@ from project.problems.finite_automaton import (
     Transitions,
 )
 
+
 class _DFAStateTransitions(StateTransitions[State]):
     def __init__(
         self,
         transitions: dict[tuple[State, Symbol], State]
-        | MappingProxyType,
+        | Mapping[tuple[State, Symbol], State],
         state: State,
+        mutable_transitions: dict[tuple[State, Symbol], State] | None,
     ) -> None:
         self._transitions = transitions
         self._state = state
+        self._mutable_transitions = mutable_transitions
 
     def __getitem__(self, symbol: Symbol) -> State | None:
         return self._transitions.get((self._state, symbol))
 
     def __setitem__(self, symbol: Symbol, destination: State) -> None:
         key = (self._state, symbol)
-        if not isinstance(self._transitions, dict):
+        if self._mutable_transitions is None:
             raise TypeError("Transitions are immutable")
-        if key in self._transitions and self._transitions[key] != destination:
+        if (
+            key in self._mutable_transitions
+            and self._mutable_transitions[key] != destination
+        ):
             raise ValueError(
                 f"Non-deterministic transition from {self._state!r} "
                 f"with {symbol!r}"
             )
-        self._transitions[key] = destination
+        self._mutable_transitions[key] = destination
 
 
 class _DFATransitions(Transitions[State]):
     def __init__(self) -> None:
-        self._values: dict[tuple[State, Symbol], State] | MappingProxyType = {}
+        values: dict[tuple[State, Symbol], State] = {}
+        self._values: Mapping[tuple[State, Symbol], State] = values
+        self._mutable_values: dict[tuple[State, Symbol], State] | None = values
 
     def __getitem__(
         self,
         state: State,
     ) -> StateTransitions[State]:
-        return _DFAStateTransitions(self._values, state)
+        return _DFAStateTransitions(
+            self._values,
+            state,
+            self._mutable_values,
+        )
 
     def items(self):
         return self._values.items()
@@ -50,8 +63,9 @@ class _DFATransitions(Transitions[State]):
         return (value,)
 
     def freeze(self) -> None:
-        if isinstance(self._values, dict):
-            self._values = MappingProxyType(self._values)
+        if self._mutable_values is not None:
+            self._values = MappingProxyType(self._mutable_values)
+            self._mutable_values = None
 
 
 class DFA(FiniteAutomaton[State]):
