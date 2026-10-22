@@ -111,7 +111,7 @@ class NFA(FiniteAutomaton[Set[State]]):
             if current_subset & self.accepting_states:
                 accepting_states.add(current_state_name)
 
-            for symbol in self.alphabet:
+            for symbol in sorted(self.alphabet):
                 next_subset = frozenset(
                     destination
                     for state in current_subset
