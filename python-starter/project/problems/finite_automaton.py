@@ -134,17 +134,17 @@ class FiniteAutomaton(Generic[TValue], ABC):
         cls,
         input_file: TextIO,
     ) -> tuple[
-        list[State],
-        list[Symbol],
+        frozenset[State],
+        frozenset[Symbol],
         State,
-        list[State],
+        frozenset[State],
         Transitions[TValue],
     ]:
         lines = input_file.readlines()
-        states = lines[0].split()
-        alphabet = lines[1].split()
+        states = frozenset(lines[0].split())
+        alphabet = frozenset(lines[1].split())
         initial_state = lines[2].strip()
-        accepting_states = lines[3].split()
+        accepting_states = frozenset(lines[3].split())
         transitions = cls._new_transitions()
 
         for line in lines[4:]:
@@ -153,8 +153,8 @@ class FiniteAutomaton(Generic[TValue], ABC):
                 source,
                 symbol,
                 (destination,),
-                frozenset(states),
-                frozenset(alphabet),
+                states,
+                alphabet,
             )
             transitions[source][symbol] = destination
 

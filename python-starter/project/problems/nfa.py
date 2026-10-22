@@ -11,9 +11,8 @@ from project.problems.finite_automaton import (
     Transitions,
 )
 
-class _NFAStateTransitions(
-    StateTransitions[Set[State]]
-):
+
+class _NFAStateTransitions(StateTransitions[Set[State]]):
     def __init__(
         self,
         transitions: dict[tuple[State, Symbol], set[State]]
@@ -38,9 +37,7 @@ class _NFAStateTransitions(
         return self._transitions.get((self._state, symbol), set())
 
 
-class _NFATransitions(
-    Transitions[Set[State]]
-):
+class _NFATransitions(Transitions[Set[State]]):
     def __init__(self) -> None:
         values: dict[tuple[State, Symbol], set[State]] = {}
         self._values: Mapping[
