@@ -52,7 +52,7 @@ class FiniteAutomaton(Generic[TValue], ABC):
         transitions: Transitions[TValue],
     ) -> None:
         self._states = frozenset(states)
-        self._alphabet = tuple(dict.fromkeys(alphabet))
+        self._alphabet = frozenset(alphabet)
         self._initial_state = initial_state
         self._accepting_states = frozenset(accepting_states)
         transitions.freeze()
@@ -64,7 +64,7 @@ class FiniteAutomaton(Generic[TValue], ABC):
         return self._states
 
     @property
-    def alphabet(self) -> tuple[Symbol, ...]:
+    def alphabet(self) -> frozenset[Symbol]:
         return self._alphabet
 
     @property
@@ -78,6 +78,30 @@ class FiniteAutomaton(Generic[TValue], ABC):
     @property
     def transitions(self) -> Transitions[TValue]:
         return self._transitions
+
+    @staticmethod
+    def _validate_transition(
+        source: State,
+        symbol: Symbol,
+        destinations: Iterable[State],
+        states: frozenset[State],
+        alphabet: frozenset[Symbol],
+    ) -> None:
+        if source not in states:
+            raise ValueError(
+                f"Transition source {source!r} is not in states"
+            )
+        if symbol not in alphabet:
+            raise ValueError(
+                f"Transition symbol {symbol!r} is not in alphabet"
+            )
+
+        invalid_destinations = set(destinations) - states
+        if invalid_destinations:
+            raise ValueError(
+                "Transition destinations are not in states: "
+                f"{sorted(invalid_destinations)!r}"
+            )
 
     def _validate_definition(self) -> None:
         if self.initial_state not in self.states:
@@ -93,22 +117,13 @@ class FiniteAutomaton(Generic[TValue], ABC):
             )
 
         for (source, symbol), value in self.transitions.items():
-            if source not in self.states:
-                raise ValueError(
-                    f"Transition source {source!r} is not in states"
-                )
-            if symbol not in self.alphabet:
-                raise ValueError(
-                    f"Transition symbol {symbol!r} is not in alphabet"
-                )
-
-            destinations = self.transitions.destinations(value)
-            invalid_destinations = set(destinations) - self.states
-            if invalid_destinations:
-                raise ValueError(
-                    "Transition destinations are not in states: "
-                    f"{sorted(invalid_destinations)!r}"
-                )
+            self._validate_transition(
+                source,
+                symbol,
+                self.transitions.destinations(value),
+                self.states,
+                self.alphabet,
+            )
 
     @classmethod
     def from_file(cls, input_file: TextIO) -> Self:
@@ -134,18 +149,13 @@ class FiniteAutomaton(Generic[TValue], ABC):
 
         for line in lines[4:]:
             source, symbol, destination = line.split()
-            if source not in states:
-                raise ValueError(
-                    f"Transition source {source!r} is not in states"
-                )
-            if symbol not in alphabet:
-                raise ValueError(
-                    f"Transition symbol {symbol!r} is not in alphabet"
-                )
-            if destination not in states:
-                raise ValueError(
-                    f"Transition destination {destination!r} is not in states"
-                )
+            cls._validate_transition(
+                source,
+                symbol,
+                (destination,),
+                frozenset(states),
+                frozenset(alphabet),
+            )
             transitions[source][symbol] = destination
 
         return (
@@ -164,7 +174,7 @@ class FiniteAutomaton(Generic[TValue], ABC):
     def __str__(self) -> str:
         lines = [
             " ".join(sorted(self.states)),
-            " ".join(self.alphabet),
+            " ".join(sorted(self.alphabet)),
             self.initial_state,
             " ".join(sorted(self.accepting_states)),
         ]
