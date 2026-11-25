@@ -76,7 +76,7 @@ class RegexProblem(Problem):
                 r"(?P<tag>.+?): "
                 r"(?P<message>.*?at +"
                     r"(?P<call>.+?)\("
-                    r"(?P<file>.+?):"
+                    r"(?P<file>.+?\.java):"
                     r"(?P<line>[0-9]+)\)"
                 r")"
             r")"
@@ -89,10 +89,10 @@ class RegexProblem(Problem):
         return "\n".join(files)
 
     def problem3(self, input):
-        pids = [
+        pids = dict.fromkeys(
             match.group("pid")
             for match in re.finditer(self.base_pattern, input)
-        ]
+        )
         return "\n".join(pids)
 
     def problem4(self, input):
