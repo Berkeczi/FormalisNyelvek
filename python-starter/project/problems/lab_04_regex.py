@@ -56,7 +56,7 @@ class RegexProblem(Problem):
             r"^[0-9-]+ 10:18:51.{7}221 ",
             r" [0-9]+ +[0-9]+ E ",
             r" W PackageManager:",
-            r" D .*ExoPlayer.*:",
+            r" D .*ExoPlayer",
             r" [EW] .*\.java:",
             r"^[^:]*:[^:]*:[^:]*:.*Thread"
         ]
