@@ -53,10 +53,10 @@ class RegexProblem(Problem):
             r"^10-15 10:18:51",
             r"^.*:..:51",
             r"^.*lowmemorykiller:",
-            r"^.*10:18:51.{7}221",
+            r"^10-15 10:18:51\.[0-9]+ +221 ",
             r" E ",
-            r"W PackageManager:",
-            r"D .*ExoPlayer.*:",
+            r" W PackageManager:",
+            r" D [^:]*ExoPlayer[^:]*:",
             r" [EW] .*\.java:",
             r"^[^:]*:[^:]*:[^:]*:.*Thread"
         ]
