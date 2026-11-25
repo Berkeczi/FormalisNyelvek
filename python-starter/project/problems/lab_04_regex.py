@@ -50,15 +50,15 @@ class RegexProblem(Problem):
     def problem1(self, input):
         patterns = [
             r"^10-15 ",
-            r"^10-15 10:18:51",
+            r"^10-15 10:18:51[.]",
             r"^.*:..:51",
-            r"^.*lowmemorykiller:",
-            r"^10-15 10:18:51\.[0-9]+ +221 ",
-            r" E ",
+            r"lowmemorykiller:",
+            r"^10-15 10:18:51.{7}221 ",
+            r" [0-9]+ +[0-9]+ E ",
             r" W PackageManager:",
-            r" D [^:]*ExoPlayer[^:]*:",
+            r" D .*ExoPlayer.*:",
             r" [EW] .*\.java:",
-            r"^[^:]*:[^:]*:[^:]*:.*Thread"
+            r"^[^:]*:[^:]*:[^:]*:[^\n]*\bThread\b"
         ]
 
         return "\n".join(
